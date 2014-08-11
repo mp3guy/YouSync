@@ -129,8 +129,8 @@ if __name__ == "__main__":
                         else:
                             logData("OK downloading " + title)
                             db[video_id] = 1
+
+                writeDb(db, line + ".db")
                         
-                playlistitems_list_request = youtube.playlistItems().list_next(
-                    playlistitems_list_request, playlistitems_list_response)
+                playlistitems_list_request = youtube.playlistItems().list_next(playlistitems_list_request, playlistitems_list_response)
                 
-            writeDb(db, line + ".db")
