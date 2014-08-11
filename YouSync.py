@@ -122,7 +122,7 @@ if __name__ == "__main__":
             
                     if video_id not in db:
                         print "Downloading " + title
-                        args = shlex.split("/usr/local/bin/youtube-dl -q -o \"" + baseDir + playlist_title + "/%(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 192K " + video_id)
+                        args = shlex.split("/usr/local/bin/youtube-dl -q -o \"" + baseDir + playlist_title + "/%(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 192K http://www.youtube.com/watch?v=" + video_id)
                         p = subprocess.Popen(args)
                         if not p.wait() == 0:
                             logData("Problem downloading " + title)
