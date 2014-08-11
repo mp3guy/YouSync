@@ -152,6 +152,7 @@ if __name__ == "__main__":
                             audio = EasyID3(fullDir + "/" + new_file[0])
                             audio["title"] = title;
                             audio["album"] = playlist_title
+                            audio["tracknumber"] = str(len(files_after))
                             audio.save()
 
                     writeDb(db, line + ".db")
