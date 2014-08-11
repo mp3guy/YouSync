@@ -3,7 +3,7 @@ YouSync
 
 Something to manage YouTube playlist synchronisation. 
 
-You need to have your client\_secrets.json file in the root directory to run it, see (this)[https://developers.google.com/api-client-library/python/guide/aaa_oauth#acquiring]. You need avconv too.
+You need to have your client\_secrets.json file in the root directory to run it, see [this](https://developers.google.com/api-client-library/python/guide/aaa_oauth#acquiring). You need avconv too.
 
 Also
 
