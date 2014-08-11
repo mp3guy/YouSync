@@ -2,6 +2,9 @@
 
 import httplib2, os, pickle, sys, shlex, subprocess, time
 
+from mutagen.easyid3 import EasyID3
+from os import listdir
+from os.path import isfile, join
 from apiclient.discovery import build
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
@@ -121,14 +124,35 @@ if __name__ == "__main__":
                     video_id = playlist_item["snippet"]["resourceId"]["videoId"]
             
                     if video_id not in db:
+                        
+                        fullDir = baseDir + playlist_title
+                        
+                        if not os.path.exists(fullDir):
+                            os.makedirs(fullDir)
+                        
+                        #This is annoying, since we can't predict the name of the newly downloaded mp3
+                        files_before = [f for f in listdir(fullDir) if isfile(join(fullDir,f))]
+                        
                         print "Downloading " + title
-                        args = shlex.split("/usr/local/bin/youtube-dl -q -o \"" + baseDir + playlist_title + "/%(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 192K http://www.youtube.com/watch?v=" + video_id)
+                        args = shlex.split("/usr/local/bin/youtube-dl -q -o \"" + fullDir + "/%(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 192K http://www.youtube.com/watch?v=" + video_id)
                         p = subprocess.Popen(args)
                         if not p.wait() == 0:
                             logData("Problem downloading " + title)
                         else:
                             logData("OK downloading " + title)
                             db[video_id] = 1
+                            
+                            files_after = [f for f in listdir(fullDir) if isfile(join(fullDir,f))]
+                            
+                            new_file = list(set(files_after) - set(files_before))
+                            
+                            #Otherwise sadtimes
+                            assert len(new_file) == 1
+                            
+                            audio = EasyID3(fullDir + "/" + new_file[0])
+                            audio["title"] = title;
+                            audio["album"] = playlist_title
+                            audio.save()
 
                     writeDb(db, line + ".db")
                         

@@ -12,3 +12,5 @@ sudo pip install --upgrade youtube_dl
 sudo pip install --upgrade google-api-python-client
 
 sudo easy_install --upgrade oauth2client
+
+Also you need [mutagen](https://bitbucket.org/lazka/mutagen)
