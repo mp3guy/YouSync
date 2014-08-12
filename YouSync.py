@@ -51,9 +51,7 @@ class YouTube:
 
 def logData(info):
     f = open("YouSync.log", "a")
-    
     f.write(time.strftime("%c") + " " + info + "\n")
-    
     f.close()
     
 def writeDb(db, fname):
@@ -98,6 +96,8 @@ if __name__ == "__main__":
         for line in f:
             if line.startswith('#'):
                 continue
+            
+            line = line.strip()
             
             db = findDb(line)
             
