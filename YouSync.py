@@ -137,9 +137,9 @@ if __name__ == "__main__":
                         args = shlex.split("/usr/local/bin/youtube-dl -q -o \"" + fullDir + "/%(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 192K http://www.youtube.com/watch?v=" + video_id)
                         p = subprocess.Popen(args)
                         if not p.wait() == 0:
-                            logData("Problem downloading " + title)
+                            logData("Problem downloading " + title.encode('ascii', 'ignore'))
                         else:
-                            logData("OK downloading " + title)
+                            logData("OK downloading " + title.encode('ascii', 'ignore'))
                             db[video_id] = 1
                             
                             files_after = [f for f in listdir(fullDir) if isfile(join(fullDir,f))]
