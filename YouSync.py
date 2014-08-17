@@ -49,6 +49,14 @@ class YouTube:
         return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
           http=credentials.authorize(httplib2.Http()))
 
+def writeLock():
+    f = open(".lock", 'w')
+    f.write(" ")
+    f.close()
+
+def removeLock():
+    os.remove(".lock")
+
 def logData(info):
     f = open("YouSync.log", "a")
     f.write(time.strftime("%c") + " " + info + "\n")
@@ -76,6 +84,12 @@ def findDb(fileId):
     return db
         
 if __name__ == "__main__":
+    if os.path.isfile(".lock"):
+        print "Not running since another instance is"
+        sys.exit(0)
+
+    writeLock()
+
     youtube = YouTube.gimme()
     
     if len(sys.argv) > 1:
@@ -90,7 +104,10 @@ if __name__ == "__main__":
     
     if not os.path.isfile(fname):
         print "Please supply playlist IDs in playlists.txt"
+        removeLock()
         sys.exit(0)
+
+    logData("Scanning playlists")
         
     with open(fname) as f:
         for line in f:
@@ -159,3 +176,4 @@ if __name__ == "__main__":
                         
                 playlistitems_list_request = youtube.playlistItems().list_next(playlistitems_list_request, playlistitems_list_response)
                 
+    removeLock()
