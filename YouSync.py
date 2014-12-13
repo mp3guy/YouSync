@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import httplib2, os, pickle, sys, shlex, subprocess, time
 
@@ -49,14 +49,6 @@ class YouTube:
         return build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION,
           http=credentials.authorize(httplib2.Http()))
 
-def writeLock():
-    f = open(".lock", 'w')
-    f.write(" ")
-    f.close()
-
-def removeLock():
-    os.remove(".lock")
-
 def logData(info):
     f = open("YouSync.log", "a")
     f.write(time.strftime("%c") + " " + info + "\n")
@@ -84,11 +76,19 @@ def findDb(fileId):
     return db
         
 if __name__ == "__main__":
-    if os.path.isfile(".lock"):
-        print "Not running since another instance is"
-        sys.exit(0)
+    pids = [pid for pid in os.listdir('/proc') if pid.isdigit()]
 
-    writeLock()
+    count = 0
+ 
+    for pid in pids:
+        try:
+            if open(os.path.join('/proc', pid, 'cmdline'), 'rb').read().find("YouSync") != -1:
+                count = count + 1
+                if count > 1:
+                    print "Not running since another instance is"
+                    sys.exit(0)
+        except IOError: # proc has already terminated
+            continue
 
     youtube = YouTube.gimme()
     
@@ -104,7 +104,6 @@ if __name__ == "__main__":
     
     if not os.path.isfile(fname):
         print "Please supply playlist IDs in playlists.txt"
-        removeLock()
         sys.exit(0)
 
     logData("Scanning playlists")
@@ -113,7 +112,7 @@ if __name__ == "__main__":
         for line in f:
             if line.startswith('#'):
                 continue
-            
+
             line = line.strip()
             
             db = findDb(line)
@@ -151,7 +150,7 @@ if __name__ == "__main__":
                         files_before = [f for f in listdir(fullDir) if isfile(join(fullDir,f))]
                         
                         print "Downloading " + title
-                        args = shlex.split("/usr/local/bin/youtube-dl -q -o \"" + fullDir + "/%(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 192K http://www.youtube.com/watch?v=" + video_id)
+                        args = shlex.split("/usr/bin/youtube-dl -q -o \"" + fullDir + "/%(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 192K http://www.youtube.com/watch?v=" + video_id)
                         p = subprocess.Popen(args)
                         if not p.wait() == 0:
                             logData("Problem downloading " + title.encode('ascii', 'ignore'))
@@ -175,5 +174,3 @@ if __name__ == "__main__":
                     writeDb(db, line + ".db")
                         
                 playlistitems_list_request = youtube.playlistItems().list_next(playlistitems_list_request, playlistitems_list_response)
-                
-    removeLock()
